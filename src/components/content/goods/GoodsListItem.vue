@@ -1,26 +1,39 @@
 <template>
-  <div class="goods-item">
-    <img :src="goodsItem.show.img" alt="" />
-    <div class="goods-info">
-      <p>{{ goodsItem.title }}</p>
-      <span class="price">{{ goodsItem.price }}</span>
-      <span class="collect">{{ goodsItem.cfav }}</span>
-    </div>
+<div class="goods-item" @click="itemClick">
+  <img :src="showImage" alt="" @load="imageLoad" />
+  <div class="goods-info">
+    <p>{{ goodsItem.title }}</p>
+    <span class="price">{{ goodsItem.price }}</span>
+    <span class="collect">{{ goodsItem.cfav }}</span>
   </div>
+</div>
 </template>
 
 <script>
 export default {
   name: "GoodsListItem",
   methods: {
-    isLoadOK() {
-      this.$emit("imageLoad");
+    imageLoad() {
+      // if (this.$route.path.indexOf("/home") != -1) {
+      //   this.$bus.$emit("homeItemImgLoad");
+      // } else if (this.$route.path.indexOf("/detail") != -1) {
+      //   this.$bus.$emit("detailItemImgLoad");
+      // }
+      this.$bus.$emit("itemImgLoad");
+    },
+    itemClick() {
+      this.$router.push("/detail/" + this.goodsItem.iid);
+    },
+  },
+  computed: {
+    showImage() {
+      return this.goodsItem.image || this.goodsItem.show.img;
     },
   },
   props: {
     goodsItem: {
       type: Object,
-      default() {
+      default () {
         return [];
       },
     },
