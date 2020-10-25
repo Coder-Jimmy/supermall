@@ -15,7 +15,7 @@
       <detail-comment-info :comment-info="commentInfo" ref="comment" />
       <goods-list :goods="recommends" ref="recommend" />
     </scroll>
-    <detail-bottom-bar />
+    <detail-bottom-bar @addCart="addToCart" />
     <back-top @click.native="backClick" v-show="isShowBackTop" />
   </div>
 </template>
@@ -34,6 +34,9 @@ import Scroll from "components/common/scroll/Scroll";
 import GoodsList from "components/content/goods/GoodsList";
 import { debounce } from "common/utils";
 import { itemListenerMixin, backTopMixin } from "common/mixin";
+import Toast from "components/common/toast/Toast";
+
+import { mapActions } from "vuex";
 
 import {
   getDetail,
@@ -72,9 +75,11 @@ export default {
     DetailCommentInfo,
     DetailBottomBar,
     GoodsList,
+    Toast,
     Scroll,
   },
   methods: {
+    ...mapActions(["addCart"]),
     imageLoad() {
       this.$refs.scroll.refresh();
       //获取offsetTop的值
@@ -103,6 +108,33 @@ export default {
 
       //3.判断BackTop是否显示
       this.isShowBackTop = Math.abs(position.y) > 1000;
+    },
+    addToCart() {
+      //1.获取购物车需要展示的信息
+      const product = {};
+      product.image = this.topImages[0];
+      product.title = this.goods.title;
+      product.desc = this.goods.desc;
+      product.price = this.goods.realPrice;
+      product.iid = this.iid;
+
+      //2.将商品添加到购物车(1.Promise,2.mapActions)
+      //正常调用方式
+      // this.$store.dispatch("addCart", product).then((res) => {
+      //   console.log(res);
+      // });
+      //使用mapActions调用addCart
+      this.addCart(product).then((res) => {
+        // this.isShow = true;
+        // this.message = res;
+        // setTimeout(() => {
+        //   this.isShow = false;
+        //   this.message = "";
+        // }, 1500);
+
+        //使用自定义封装的插件
+        this.$toast.show(res, 1500);
+      });
     },
   },
   created() {
